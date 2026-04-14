@@ -4,7 +4,8 @@ const path = require('path');
 
 const app = express();
 require('dotenv').config();
-const PORT = process.env.PORT;
+const PORT = process.env.PORT
+const BASEPATH = process.env.BASEPATH || '';
 
 // MySQL connection pool
 const db = mysql.createPool({
@@ -19,7 +20,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API search endpoint (FULLTEXT)
-app.get('/api/search', (req, res) => {
+app.get('${BASEPATH}/api/search', (req, res) => {
     const keyword = req.query.q || '';
     const kabupaten = req.query.kabupaten || '';
 
@@ -53,7 +54,7 @@ app.get('/api/search', (req, res) => {
 });
 
 // Serve frontend
-app.get('/', (req, res) => {
+app.get('${BASEPATH}/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
