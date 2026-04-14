@@ -20,7 +20,7 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // API search endpoint (FULLTEXT)
-app.get('${BASEPATH}/api/search', (req, res) => {
+app.get(`${BASEPATH}/api/search`, (req, res) => {
     const keyword = req.query.q || '';
     const kabupaten = req.query.kabupaten || '';
 
@@ -54,7 +54,7 @@ app.get('${BASEPATH}/api/search', (req, res) => {
 });
 
 // Serve frontend
-app.get('${BASEPATH}/', (req, res) => {
+app.get(`${BASEPATH}/`, (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
