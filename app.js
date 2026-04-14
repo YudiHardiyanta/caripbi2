@@ -6,6 +6,7 @@ const app = express();
 require('dotenv').config();
 const PORT = process.env.PORT
 const BASEPATH = process.env.BASEPATH || '';
+console.log(`Using BASEPATH: ${BASEPATH}`);
 
 // MySQL connection pool
 const db = mysql.createPool({
