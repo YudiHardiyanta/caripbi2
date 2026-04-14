@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cari Alamat PBI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 min-h-screen p-6">
+
+    <div class="max-w-2xl mx-auto">
+        <h1 class="text-2xl font-bold mb-4">Pencarian GC PBI 2</h1>
+
+        <select id="kabupaten" class="p-3 border rounded-lg">
+            <option value="5101">Jembrana</option>
+            <option value="5102">Tabanan</option>
+            <option value="5103">Badung</option>
+            <option value="5104">Gianyar</option>
+            <option value="5105">Klungkung</option>
+            <option value="5106">Bangli</option>
+            <option value="5107">Karangasem</option>
+            <option value="5108">Buleleng</option>
+            <option value="5171">Denpasar</option>
+        </select>
+
+        <input id="search" type="text" placeholder="Masukan Nama Yang Ingin Di Cari..."
+            class="w-full p-3 border rounded-lg shadow-sm focus:outline-none focus:ring focus:border-blue-300" />
+
+        <div id="results" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6"></div>
+    </div>
+
+    <script>
+        const input = document.getElementById('search');
+        const resultsDiv = document.getElementById('results');
+        const select = document.getElementById('kabupaten');
+
+        let timeout = null;
+
+        input.addEventListener('keyup', () => {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+                const query = input.value;
+                const kabupaten = select.value;
+
+                if (!query && !kabupaten) {
+                    resultsDiv.innerHTML = '';
+                    return;
+                }
+
+                fetch(`/api/search?q=${query}&kabupaten=${kabupaten}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+                        // Ambil angka dari string
+
+                        if (data.length === 0) {
+                            resultsDiv.innerHTML = '<p class="text-gray-500">No results found</p>';
+                            return;
+                        }
+
+                        data.forEach(user => {
+                            const match = user.titik.match(/POINT \(([-\d\.]+) ([-\d\.]+)\)/);
+                            let url = "#";
+                            if (match) {
+                                const lon = match[1];
+                                const lat = match[2];
+
+                                // Google Maps pakai format: lat,lon
+                                url = `https://www.google.com/maps?q=${lat},${lon}`;
+                            }
+
+                            const card = document.createElement('a');
+
+                            card.className = 'bg-white p-4 rounded-xl shadow';
+                            card.href = url;
+                            card.target = "_blank";
+
+                            card.innerHTML = `
+                <h2 class="text-lg font-semibold">Nama KK : ${user.nama_kk}</h2>
+                <p class="text-gray-600">Nama AK : ${user.nama_ak}</p>
+                <p class="text-gray-600">Alamat : ${user.alamat}</p>
+                <p class="text-gray-600">${user.nama_kabupaten} > ${user.nama_kecamatan} > ${user.nama_desa} > ${user.nama_sls}</p>
+                <p><b>Variable Regsosek</b></p>
+                <p class="text-gray-600">Nama Regsosek : ${user.nama_regsosek}</p>
+                <p class="text-gray-600">Nama Kepala KK Regsosek : ${user.ganda_nama_kk}</p>
+                <p class="text-gray-600">Alamat Regsosek : ${user.alamat_regsosek}</p>
+                <p class="text-xs text-gray-400 mt-2">Score Kesamaan Regsosek: ${user.nama_sim.toFixed(2) * 100}</p>
+                
+              `;
+
+                            resultsDiv.appendChild(card);
+                        });
+                    });
+            }, 300);
+        });
+    </script>
+
+</body>
+
+</html>
